@@ -158,13 +158,6 @@ function randomWalk() {
 	// Then turn a random amount, with the angularVelocity constant as the maximum.
 	var randomTurn = Math.random() - 0.5;
 	container.rotation = container.rotation + 2 * randomTurn * angularVelocity;
-
-	var path = new createjs.Shape();
-	path.graphics.setStrokeStyle(1);
-	path.graphics.beginStroke('Black');
-	path.graphics.moveTo(lx, ly);
-	path.graphics.lineTo(container.x, container.y);
-	path.graphics.endStroke();
 }
 
 // Updates the robot.
