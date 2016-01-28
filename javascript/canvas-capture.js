@@ -78,6 +78,7 @@
                 this.options.outCanvasEl = document.createElement('canvas');
                 this.options.outCanvasEl.setAttribute('width', this.options.outWidth);
                 this.options.outCanvasEl.setAttribute('height', this.getOutCanvasHeight());
+                this.options.outCanvasEl.setAttribute('style', 'display: none;');
             }
             
             if (this.options.debug) {
@@ -110,8 +111,9 @@
             if (this.options.debug) {
                 var anchor = document.createElement('a');
                 anchor.setAttribute('href', this.getImageURL());
-                anchor.innerHTML = 'download';
-                document.body.appendChild(anchor);
+                anchor.innerHTML = 'Download Video';
+                var buttons = document.getElementById("buttons");
+                buttons.appendChild(anchor);
             }
         };
         
