@@ -23,17 +23,18 @@ var robotRadius = 15;					// Size of the robot.
 var collisionThreshold = 5; 			// Pixel collision threshold.
 var angularAcceleration = 1;			// Change in rate of rotation during randomWalk() by X degrees per update per update.
 var angularVelocity = 5;				// Maximum angular velocity during randomWalk() by X degrees per update.
-var turnAngularVelocity = 3;			// Rate of rotation during turnRight() by X degrees per update.
+var turnAngularVelocity = 3;			// Rate of rotation during turnAway() by X degrees per update.
 var velocity = 4;						// Move X pixels per update.
 
 var obstacle_1_width = 120;				// Obstacle dimensions.
 var obstacle_1_height = 100;
-var obstacle_2_width = 240;
+var obstacle_2_width = 240;	
 var obstacle_2_height = 70;
 var obstacle_3_width = 180;
 var obstacle_3_height = 80;
 
 	// ** GLOBAL VARIABLES ** //
+var turnRight = true;					// For storing which way to turn.
 var relativeRotation = 0;				// For storing relative values.
 var relativeTranslationX = 0;
 var relativeTranslationY = 0;
@@ -151,7 +152,7 @@ function isColliding() {
 }
 
 // Turn right.
-function turnRight() {
+function turnAway() {
 	container.rotation = container.rotation + turnAngularVelocity;
 	relativeRotation = 0;			// Reset the relative rotation back to 0.
 }
@@ -172,6 +173,9 @@ function randomWalk() {
 		// Use trignometric functions and the robot's absolute rotation.
 	relativeTranslationX = velocity * Math.cos( Math.PI * container.rotation / 180 );
 	relativeTranslationY = velocity * Math.sin( Math.PI * container.rotation / 180 );
+
+
+
 		// Rotate.
 	container.rotation = container.rotation + relativeRotation;
 		// Move forward.
@@ -182,7 +186,7 @@ function randomWalk() {
 	// Update the robot.
 function updateRobot() {
 	if ( isColliding() ) {				// If the robot is colliding, it should turn.
-		turnRight();
+		turnAway();
 	} else {							// Otherwise, move forward.
 		randomWalk();
 	}
