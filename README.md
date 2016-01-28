@@ -23,9 +23,15 @@ I used the EaselJS framework to draw on the canvas, create timed events. I wrote
 The random walk adjusts the robot's angular acceleration and moves the robot forward. You can see this by resetin the simulation and using the path tracking - the robot takes different paths.
 
 This program has the following main sections:
+
 1.) CONSTANTS
+
 2.) GLOBAL VARIABLES
+
 3.) INITIALIZATIONS
+
 4.) FUNCTIONS
+
 5.) UPDATE EVENT
+
 6.) BUTTONS
