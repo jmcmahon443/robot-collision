@@ -1,27 +1,58 @@
-// CONSTANTS.
-var robotRadius = 14;
-var collisionThreshold = 20; // Pixel collision threshold.
-var angularVelocity = 3; // Rotate X degrees per update.
-var velocity = 3; // Move X pixels per update.
+/*  2D Robot Collision Simulator
+	Worcester Polytechnic Institute
+	RBE 595: Advanced Robot Navigaton
+	Professor Carlos Morato
+	Spring 2016
 
-var obstacle_1_width = 120;
+	Joseph McMahon
+	January 27, 2016
+								
+	The purpose of this simulator is to understand Reactive Navigation by implementing a randomly walking
+	2D robot.
+
+	This program has the following main sections:
+		1.) CONSTANTS
+		2.) GLOBAL VARIABLES
+		3.) INITIALIZATIONS
+		4.) FUNCTIONS
+		5.) UPDATE EVENT
+*/
+
+	// ** CONSTANTS ** //
+var robotRadius = 15;					// Size of the robot.
+var collisionThreshold = 5; 			// Pixel collision threshold.
+var angularAcceleration = 1;			// Change in rate of rotation during randomWalk() by X degrees per update per update.
+var angularVelocity = 5;				// Maximum angular velocity during randomWalk() by X degrees per update.
+var turnAngularVelocity = 3;			// Rate of rotation during turnRight() by X degrees per update.
+var velocity = 4;						// Move X pixels per update.
+
+var obstacle_1_width = 120;				// Obstacle dimensions.
 var obstacle_1_height = 100;
 var obstacle_2_width = 240;
 var obstacle_2_height = 70;
 var obstacle_3_width = 180;
 var obstacle_3_height = 80;
 
-// Easel.js framework.
+	// ** GLOBAL VARIABLES ** //
+var relativeRotation = 0;				// For storing relative values.
+var relativeTranslationX = 0;
+var relativeTranslationY = 0;
+
+	// ** INITIALIZATIONS ** //
+	// Easel.js framework.
 var canvas = document.getElementById("canvas");
 var stage = new createjs.Stage(canvas);
 
-// Clock.
+	// Clock.
 createjs.Ticker.addEventListener("tick", tick);
 createjs.Ticker.setFPS(30);
 
-// Initialize and add robot and obstacles.
+	// Initialize and add robot and obstacles.
 var circle = new createjs.Shape();
 circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, robotRadius);
+
+var sensorCircle = new createjs.Shape();
+sensorCircle.graphics.beginStroke("Red").drawCircle(0, 0, robotRadius+collisionThreshold);
 
 var line = new createjs.Shape();
 line.graphics.setStrokeStyle(3);
@@ -30,58 +61,19 @@ line.graphics.moveTo(0, 0);
 line.graphics.lineTo(robotRadius, 0);
 line.graphics.endStroke();
 
-var line1 = new createjs.Shape();
-line1.graphics.setStrokeStyle(1);
-line1.graphics.beginStroke('Red');
-line1.graphics.moveTo(robotRadius, 0);
-line1.graphics.lineTo(robotRadius+collisionThreshold, 0);
-line1.graphics.endStroke();
-
-var line2 = new createjs.Shape();
-line2.graphics.setStrokeStyle(1);
-line2.graphics.beginStroke('Red');
-line2.graphics.moveTo(0, robotRadius);
-line2.graphics.lineTo(0, robotRadius+collisionThreshold);
-line2.graphics.endStroke();
-
-var line3 = new createjs.Shape();
-line3.graphics.setStrokeStyle(1);
-line3.graphics.beginStroke('Red');
-line3.graphics.moveTo(0, -robotRadius);
-line3.graphics.lineTo(0, -robotRadius-collisionThreshold);
-line3.graphics.endStroke();
-
-var line4 = new createjs.Shape();
-line4.graphics.setStrokeStyle(1);
-line4.graphics.beginStroke('Red');
-line4.graphics.moveTo(Math.cos(Math.PI/4)*robotRadius, Math.sin(Math.PI/4)*robotRadius);
-line4.graphics.lineTo(Math.cos(Math.PI/4)*(robotRadius+collisionThreshold), Math.sin(Math.PI/4)*(robotRadius+collisionThreshold));
-line4.graphics.endStroke();
-
-var line5 = new createjs.Shape();
-line5.graphics.setStrokeStyle(1);
-line5.graphics.beginStroke('Red');
-line5.graphics.moveTo(Math.cos(-Math.PI/4)*robotRadius, Math.sin(-Math.PI/4)*robotRadius);
-line5.graphics.lineTo(Math.cos(-Math.PI/4)*(robotRadius+collisionThreshold), Math.sin(-Math.PI/4)*(robotRadius+collisionThreshold));
-line5.graphics.endStroke();
-
 var container = new createjs.Container();
 container.x = 450;
 container.y = 350;
 
 container.addChild(circle);
+container.addChild(sensorCircle);
 container.addChild(line);
-container.addChild(line1);
-container.addChild(line2);
-container.addChild(line3);
-container.addChild(line4);
-container.addChild(line5);
 
 stage.addChild(container);
 
 var obstacle_1 = new createjs.Shape();
-obstacle_1.graphics.beginFill("Red").drawRect(0, 0, obstacle_1_width, obstacle_1_height);
-obstacle_1.x = 40;
+obstacle_1.graphics.beginFill("Purple").drawRect(0, 0, obstacle_1_width, obstacle_1_height);
+obstacle_1.x = 70;
 obstacle_1.y = 10;
 stage.addChild(obstacle_1);
 
@@ -94,10 +86,10 @@ stage.addChild(obstacle_2);
 var obstacle_3 = new createjs.Shape();
 obstacle_3.graphics.beginFill("Green").drawRect(0, 0, obstacle_3_width, obstacle_3_height);
 obstacle_3.x = 180;
-obstacle_3.y = 200;
+obstacle_3.y = 220;
 stage.addChild(obstacle_3);
 
-// Start screen recording.
+	// Start screen recording.
 var cc = new CanvasCapture({
     debug: true,
     fps: 8,
@@ -105,88 +97,107 @@ var cc = new CanvasCapture({
 });
 cc.start();
 
-// Refresh the stage.
+	// Refresh the stage.
 stage.update();
 
-// Returns true if robot is within collision threshold of any obstacles or canvas edge.
+	// ** FUNCTIONS ** //
+	// Returns true if robot is within collision threshold of any obstacles or canvas edge.
 function isColliding() {
-	// Check if the robot is within the collision threshold of the edge of the canvas.
+		// Check if the robot is within the collision threshold of the edge of the canvas.
 	var x = container.x;
 	var y = container.y;
-	x = x + velocity * Math.cos( Math.PI * container.rotation / 180 ); // Add the next velocity step.
+		// Add the next velocity step.
+	x = x + velocity * Math.cos( Math.PI * container.rotation / 180 );
 	y = y + velocity * Math.sin( Math.PI * container.rotation / 180 );
 	var xLow = x - robotRadius
 	var xHigh = x + robotRadius;
 	var yLow = y - robotRadius;
 	var yHigh = y + robotRadius;
-	if( xLow < collisionThreshold || xHigh > canvas.width - collisionThreshold || yLow < collisionThreshold || yHigh > canvas.height - collisionThreshold ) {
+
+		// Check if colliding with canvas border.
+	if( xLow < collisionThreshold ||
+		xHigh > canvas.width - collisionThreshold ||
+		yLow < collisionThreshold ||
+		yHigh > canvas.height - collisionThreshold ) {
 		return true;
 	}
 
-	// Check if the robot is colliding with obstacle 1.
-	if( xHigh > ( obstacle_1.x - collisionThreshold ) && xLow < ( obstacle_1.x + obstacle_1_width + collisionThreshold ) && yHigh > ( obstacle_1.y  - collisionThreshold ) && yLow < ( obstacle_1.y + obstacle_1_height + collisionThreshold ) ) {
+		// Check if colliding with obstacle 1.
+	if( xHigh > ( obstacle_1.x - collisionThreshold ) &&
+		xLow < ( obstacle_1.x + obstacle_1_width + collisionThreshold ) &&
+		yHigh > ( obstacle_1.y  - collisionThreshold ) &&
+		yLow < ( obstacle_1.y + obstacle_1_height + collisionThreshold ) ) {
 		return true;
 	}
 
-	// Check if the robot is colliding with obstacle 2.
-	if( xHigh > ( obstacle_2.x - collisionThreshold ) && xLow < ( obstacle_2.x + obstacle_2_width + collisionThreshold ) && yHigh > ( obstacle_2.y - collisionThreshold ) && yLow < ( obstacle_2.y + obstacle_2_height + collisionThreshold ) ) {
+		// Check if colliding with obstacle 2.
+	if( xHigh > ( obstacle_2.x - collisionThreshold ) &&
+		xLow < ( obstacle_2.x + obstacle_2_width + collisionThreshold ) &&
+		yHigh > ( obstacle_2.y - collisionThreshold ) &&
+		yLow < ( obstacle_2.y + obstacle_2_height + collisionThreshold ) ) {
 		return true;
 	}
 
-	// Check if the robot is colliding with obstacle 3.
-	if( xHigh > ( obstacle_3.x - collisionThreshold ) && xLow < ( obstacle_3.x + obstacle_3_width + collisionThreshold ) && yHigh > ( obstacle_3.y - collisionThreshold ) && yLow < ( obstacle_3.y + obstacle_3_height + collisionThreshold ) ) {
+		// Check if colliding with obstacle 3.
+	if( xHigh > ( obstacle_3.x - collisionThreshold ) &&
+		xLow < ( obstacle_3.x + obstacle_3_width + collisionThreshold ) &&
+		yHigh > ( obstacle_3.y - collisionThreshold ) &&
+		yLow < ( obstacle_3.y + obstacle_3_height + collisionThreshold ) ) {
 		return true;
 	}
 
-	// If the function has reached this point, the robot is not is collision.
+		// If the function has reached this point, the robot is not is collision.
 	return false;
 }
 
-// Turns the robot left.
-function turnRobot() {
-	container.rotation = container.rotation + angularVelocity;
+// Turn right.
+function turnRight() {
+	container.rotation = container.rotation + turnAngularVelocity;
+	relativeRotation = 0;			// Reset the relative rotation back to 0.
 }
 
-// Translates the robot forward.
+// Add random angular acceleration and move forward.
 function randomWalk() {
-	// Part tracking.
-	lx = container.x;
-	ly = container.y;
-	// Take one step forward.
-	container.x = container.x + velocity * Math.cos( Math.PI * container.rotation / 180 );
-	container.y = container.y + velocity * Math.sin( Math.PI * container.rotation / 180 );
-	// Then turn a random amount, with the angularVelocity constant as the maximum.
-	var randomTurn = Math.random() - 0.5;
-	container.rotation = container.rotation + 2 * randomTurn * angularVelocity;
+		// Update relative angular velocity and rotation.
+		// Random number from -1 to 1.
+	randomWeight = 2 * ( Math.random() - 0.5 );
+	relativeRotation = relativeRotation + randomWeight*angularAcceleration;
+		// Limit the relativeRotation to the angular velocity constant.
+	if( relativeRotation > angularVelocity ) {
+		relativeRotation = angularVelocity;
+	} else if ( relativeRotation < -angularVelocity ) {
+		relativeRotation = -angularVelocity;
+	}
+		// Update relative translation.
+		// Use trignometric functions and the robot's absolute rotation.
+	relativeTranslationX = velocity * Math.cos( Math.PI * container.rotation / 180 );
+	relativeTranslationY = velocity * Math.sin( Math.PI * container.rotation / 180 );
+		// Rotate.
+	container.rotation = container.rotation + relativeRotation;
+		// Move forward.
+	container.x = container.x + relativeTranslationX;
+	container.y = container.y + relativeTranslationY;
 }
 
-// Updates the robot.
+	// Update the robot.
 function updateRobot() {
-	// If the robot is colliding, it should turn.
-	if ( isColliding() ) {
-		turnRobot();
-	} else { // Otherwise, move forward.
+	if ( isColliding() ) {				// If the robot is colliding, it should turn.
+		turnRight();
+	} else {							// Otherwise, move forward.
 		randomWalk();
 	}
 }
 
-// Clock tick event.
+	// ** UPDATE EVENT ** //
+	// Clock tick event.
 function tick(event) {
-	// If it's been long enough.
-	if( createjs.Ticker.getTime() > 20000 ) {
-		createjs.Ticker.removeEventListener("tick", tick);
-		cc.stop(); // Stop screen recording.
-	// Otherwise.
-	} else {
-		updateRobot(); // Update the robot.
-		stage.update(); // Refresh the stage.
-		// Stream the robot's rotation and position.
-		console.log("Time: "+createjs.Ticker.getTime());
-		console.log("Rotation: "+container.rotation);
-		console.log("Absolute Position: ["+container.x+","+container.y+"]");
-		var transX = container.x - 450;
-		var transY = container.y - 350;
-		console.log("Translation: ["+transX+","+transY+"]");
-		console.log("----------------------------------");
-	}
+	updateRobot();						// Update the robot.
+	stage.update();						// Refresh the stage.
+		// Stream rotation and position.
+	console.log("Time: "+createjs.Ticker.getTime());
+	console.log("Absolute Rotation: "+container.rotation);
+	console.log("Absolute Position: ["+container.x+","+container.y+"]");
+	console.log("Relative Rotation: "+relativeRotation);
+	console.log("Relative Translation: ["+relativeTranslationX+","+relativeTranslationY+"]");
+	console.log("----------------------------------");
 }
