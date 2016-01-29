@@ -18,9 +18,8 @@ http://webmasters.stackexchange.com/questions/8525/how-to-open-the-javascript-co
 The simluation is hosted on GitHub pages here: http://jmcmahon443.github.io/robot-collision.
 The code can be viewed on my public GitHub page: https://github.com/jmcmahon443/robot-collision.
 
-I used the EaselJS framework to draw on the canvas, create timed events. I wrote
-the collision detection code by myself. I used an open source Javascript script
-to record the screen. I did not have enough time to implement path tracking though.
+The EaselJS framework was used to draw on the canvas, and create timed events. An open source Javascript script
+to record the screen https://github.com/spite/ccapture.js/.
 
 The random walk adjusts the robot's angular acceleration and moves the robot forward.
 You can see this by resetin the simulation and using the path tracking - the robot
@@ -222,21 +221,21 @@ function updateRobot() {
 	if ( isColliding() ) {				// If the robot is colliding, it should turn.
 		turnAway();
 			// Stream rotation and position.
-		// console.log("Time: "+createjs.Ticker.getTime());
-		// console.log("Absolute Rotation: "+container.rotation);
-		// console.log("Absolute Position: ["+container.x+","+container.y+"]");
-		// console.log("Relative Rotation: "+turnAngularVelocity);
-		// console.log("Relative Translation: ["+relativeTranslationX+","+relativeTranslationY+"]");
-		// console.log("----------------------------------");
+		console.log("Time: "+createjs.Ticker.getTime());
+		console.log("Absolute Rotation: "+container.rotation);
+		console.log("Absolute Position: ["+container.x+","+container.y+"]");
+		console.log("Relative Rotation: "+turnAngularVelocity);
+		console.log("Relative Translation: ["+relativeTranslationX+","+relativeTranslationY+"]");
+		console.log("----------------------------------");
 	} else {							// Otherwise, move forward.
 		randomWalk();
 			// Stream rotation and position.
-		// console.log("Time: "+createjs.Ticker.getTime());
-		// console.log("Absolute Rotation: "+container.rotation);
-		// console.log("Absolute Position: ["+container.x+","+container.y+"]");
-		// console.log("Relative Rotation: "+relativeRotation);
-		// console.log("Relative Translation: ["+relativeTranslationX+","+relativeTranslationY+"]");
-		// console.log("----------------------------------");
+		console.log("Time: "+createjs.Ticker.getTime());
+		console.log("Absolute Rotation: "+container.rotation);
+		console.log("Absolute Position: ["+container.x+","+container.y+"]");
+		console.log("Relative Rotation: "+relativeRotation);
+		console.log("Relative Translation: ["+relativeTranslationX+","+relativeTranslationY+"]");
+		console.log("----------------------------------");
 	}
 }
 
