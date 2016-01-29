@@ -21,7 +21,7 @@ To view streaming values, open your browser's JavaScript console: http://webmast
 The simluation is hosted on GitHub pages here: http://jmcmahon443.github.io/robot-collision.
 The code can be viewed on my public GitHub page: https://github.com/jmcmahon443/robot-collision.
 
-The EaselJS framework was used to draw on the canvas, and create timed events. An open source Javascript script
+The EaselJS framework was used to draw on the canvas, and create timed events. An open source Javascript script framework was used
 to record the screen https://github.com/spite/ccapture.js/.
 
 The random walk adjusts the robot's angular acceleration and moves the robot forward. You can see this by resetin the simulation and using the path tracking - the robot takes different paths.
