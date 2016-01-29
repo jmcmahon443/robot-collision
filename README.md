@@ -1,4 +1,7 @@
 # 2D Reactive Navigation
+
+![2D-Reactive-Navigation](/2d-reactive-navigation.png)
+
 Worcester Polytechnic Institute
 
 RBE 595: Advanced Robot Navigaton
