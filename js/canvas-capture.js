@@ -111,7 +111,7 @@
             if (this.options.debug) {
                 var anchor = document.createElement('a');
                 anchor.setAttribute('href', this.getImageURL());
-                anchor.innerHTML = 'Download Video';
+                anchor.innerHTML = 'Right click open in new tab';
                 var buttons = document.getElementById("buttons");
                 buttons.appendChild(anchor);
             }
