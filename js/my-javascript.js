@@ -43,14 +43,12 @@ var angularVelocity = 4;				// Maximum angular velocity during randomWalk() by X
 var turnAngularVelocity = 3;			// Rate of rotation during turnAway() by X degrees per update.
 var velocity = 4;						// Move X pixels per update.
 
-var width = window.innerWidth;
-var height = window.innerHeight;
-var obstacle_1_width = Math.random()*width;				// Obstacle dimensions.
-var obstacle_1_height = Math.random()*height;
-var obstacle_2_width = Math.random()*width;	
-var obstacle_2_height = Math.random()*height;
-var obstacle_3_width = Math.random()*width;
-var obstacle_3_height = Math.random()*height;
+var obstacle_1_width = 120;				// Obstacle dimensions.
+var obstacle_1_height = 100;
+var obstacle_2_width = 240;	
+var obstacle_2_height = 70;
+var obstacle_3_width = 180;
+var obstacle_3_height = 80;
 
 	// ** GLOBAL VARIABLES ** //
 var relativeRotation = 0;				// For storing relative values.
@@ -62,8 +60,6 @@ var pathTracking = true;				// Toggle path tracking.
 	// ** INITIALIZATIONS ** //
 	// Easel.js framework.
 var canvas = document.getElementById("canvas");
-canvas.width  = width-1;
-canvas.height = height-1;
 var stage = new createjs.Stage(canvas);
 
 	// Clock.
@@ -73,15 +69,25 @@ createjs.Ticker.setFPS(30);
 	// Initialize graphics.
 var obstacle_1 = new createjs.Shape();
 obstacle_1.graphics.beginFill("Purple").drawRect(0, 0, obstacle_1_width, obstacle_1_height);
+obstacle_1.x = 70;
+obstacle_1.y = 10;
+stage.addChild(obstacle_1);
 
 var obstacle_2 = new createjs.Shape();
 obstacle_2.graphics.beginFill("Blue").drawRect(0, 0, obstacle_2_width, obstacle_2_height);
+obstacle_2.x = 340;
+obstacle_2.y = 70;
+stage.addChild(obstacle_2);
 
 var obstacle_3 = new createjs.Shape();
 obstacle_3.graphics.beginFill("Green").drawRect(0, 0, obstacle_3_width, obstacle_3_height);
+obstacle_3.x = 180;
+obstacle_3.y = 220;
+stage.addChild(obstacle_3);
 
 var path = new createjs.Shape();
 path.graphics.setStrokeStyle(1);
+stage.addChild(path);
 
 var circle = new createjs.Shape();
 circle.graphics.beginFill("DeepSkyBlue").drawCircle(0, 0, robotRadius);
@@ -97,26 +103,27 @@ line.graphics.lineTo(robotRadius, 0);
 line.graphics.endStroke();
 
 var container = new createjs.Container();
+container.x = 450;
+container.y = 350;
+
+container.addChild(circle);
+container.addChild(sensorCircle);
+container.addChild(line);
+
+stage.addChild(container);
+
+	// Start screen recording.
+var cc = new CanvasCapture({
+    debug: true,
+    fps: 8,
+    inCanvasEl: document.getElementById("canvas")
+});
+cc.start();
+
+	// Refresh the stage.
+stage.update();
 
 	// ** FUNCTIONS ** //
-function spawnRobot() {
-	container.x = Math.random()*width;
-	container.y = Math.random()*height;
-	while(isColliding()){
-		container.x = Math.random()*width;
-		container.y = Math.random()*height;
-	}
-}
-
-function spawnObstacles() {
-	obstacle_1.x = Math.random()*width;
-	obstacle_1.y = Math.random()*height;
-	obstacle_2.x = Math.random()*width;
-	obstacle_2.y = Math.random()*height;
-	obstacle_3.x = Math.random()*width;
-	obstacle_3.y = Math.random()*height;
-}
-
 	// Returns true if robot is within collision threshold of any obstacles or canvas edge.
 function isColliding() {
 		// Check if the robot is within the collision threshold of the edge of the canvas.
@@ -166,32 +173,6 @@ function isColliding() {
 	return false;
 }
 
-	// ** INITIALIZATIONS ** //
-spawnObstacles();
-spawnRobot();
-
-container.addChild(circle);
-container.addChild(sensorCircle);
-container.addChild(line);
-
-stage.addChild(obstacle_1);
-stage.addChild(obstacle_2);
-stage.addChild(obstacle_3);
-stage.addChild(path);
-stage.addChild(container);
-
-	// Start screen recording.
-var cc = new CanvasCapture({
-    debug: true,
-    fps: 8,
-    inCanvasEl: document.getElementById("canvas")
-});
-cc.start();
-
-	// Refresh the stage.
-stage.update();
-
-	// ** FUNCTIONS ** //
 	// Turn right.
 function turnAway() {
 	container.rotation = container.rotation + turnAngularVelocity;
@@ -282,7 +263,7 @@ toggle.onclick = function() { toggleClick() };
 
 
 	// Pause.
-function tickerstate() {
+function pauseClick() {
 	if( createjs.Ticker.paused ) {
 		createjs.Ticker.paused = false;
 	} else {
@@ -290,28 +271,15 @@ function tickerstate() {
 	}
 }
 var pause = document.getElementById("pause");
-var play = document.getElementById("play");
-function pauseClick() {
-	tickerstate();
-	pause.style.display = "none";
-	play.style.display = "inline-block";
-}
-function playClick() {
-	tickerstate();
-	pause.style.display = "inline-block";
-	play.style.display = "none";
-}
 pause.onclick = function() { pauseClick() };
-play.onclick = function() { playClick() };
 
 	// Reset.
 function resetClick() {
 	createjs.Ticker.removeEventListener("tick", tick);
-	path.graphics.clear();
-	spawnObstacles();
-	spawnRobot();
 	container.rotation = 0;
 	relativeRotation = 0;
+	container.x = 450;
+	container.y = 350;
 	createjs.Ticker.addEventListener("tick", tick);
 }
 var reset = document.getElementById("reset");
