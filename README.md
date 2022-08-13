@@ -1,10 +1,10 @@
 # 2D Reactive Navigation
-Worcester Polytechnic Institute
-RBE 595: Advanced Robot Navigaton
-Professor Carlos Morato
+Worcester Polytechnic Institute\
+RBE 595: Advanced Robot Navigaton\
+Professor Carlos Morato\
 Spring 2016
 
-Joseph McMahon
+Joseph McMahon\
 January 27, 2016
 
 This is a 2D simulation of a robot randomly exploring a map. It has a collision threshold for the edge of the map and the three obstacles. Use the buttons below to toggle the robot's path, pause, reset, or record a video. To view streaming values, open your browser's JavaScript console.
