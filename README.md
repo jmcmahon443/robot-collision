@@ -39,3 +39,10 @@ This program has the following main sections:
 5.) UPDATE EVENT
 
 6.) BUTTONS
+
+## Future work
+ * Different types of simple navigation: straight line, random turns (cw, ccw, both)
+ * Scoreboard for map exploration percentage
+ * Path planning
+ * SLAM algorithms
+ 
